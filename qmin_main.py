@@ -33,7 +33,6 @@ class Pooler(nn.Module):
 
     def forward(self, attention_mask, outputs):
         last_hidden = outputs.last_hidden_state
-        
         if self.pooler_type == 'fisrt': # since T5 has no CLS token
             return last_hidden[:, 0]
         
@@ -48,7 +47,7 @@ class Pooler(nn.Module):
             # output_vector = torch.cat(output_vectors, 1)
             # return output_vector
         
-            return ((last_hidden * attention_mask.unsqueeze(-1)).sum(1) / attention_mask.sum(-1).unsqueeze(-1))
+            return ((last_hidden * attention_mask.squeeze(1).unsqueeze(-1)).sum(1) / attention_mask.squeeze(1).sum(-1).unsqueeze(-1))
         else:
             raise NotImplementedError
         
@@ -298,9 +297,9 @@ def main():
     tokenizer = T5Tokenizer.from_pretrained('google/mt5-base') # same as MT5Tokenizer
 
     df = pd.read_csv('./mbti_data/preprocessed_mbti.csv')
+    #df = df[:100]
 
     # train 60% -> train ,,,, train 20% -> dev ,,,, train 20% -> test
-    df = df[:100]
     df_train, df_val = np.split(df.sample(frac=1, random_state=42), [int(0.6 * len(df))])  # random_state works as seed
     df_val, df_test = np.split(df_val.sample(frac=1, random_state=42), [int(0.5 * len(df_val))])
 
