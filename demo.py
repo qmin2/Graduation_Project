@@ -17,8 +17,12 @@ import xgboost as xgb
 
 def main():
     input_answers = [
-        "I don't want to study",
-        "I always cry when I am sad",
+        "Like brothers in blood Sisters who ride And we swore on that night We'd be friends 'til we die But the changing of winds",
+        "I will pull out the car and park again",
+        "Think of the overall flow and repeat it multiple times",
+        "And we become night time dreamers And street walkers, small talkers When we should be daydreamers \
+        And moonwalkers and dream talkers And we become night time dreamers Street walkers, small talker When \
+          we should be daydreamers And moonwalkers and dream talkers",
     ]  # will have 10 answers
 
     tokenizer = T5Tokenizer.from_pretrained("t5-base")
@@ -51,10 +55,10 @@ def main():
 
     ######## prediciton ########
     # load the saved model from a file
-    ei_model = pickle.load(open("selected_tree/ei_classifier.sav", "rb"))
-    ns_model = pickle.load(open("selected_tree/ns_classifier.sav", "rb"))
-    tf_model = pickle.load(open("selected_tree/tf_classifier.sav", "rb"))
-    pj_model = pickle.load(open("selected_tree/pj_classifier.sav", "rb"))
+    ei_model = pickle.load(open("classifiers/ei_classifier.sav", "rb"))
+    ns_model = pickle.load(open("classifiers/ns_classifier.sav", "rb"))
+    tf_model = pickle.load(open("classifiers/tf_classifier.sav", "rb"))
+    pj_model = pickle.load(open("classifiers/pj_classifier.sav", "rb"))
 
     # make predictions using the loaded model
     ei_pred = ei_model.predict(test_features)  # e=0, i=1
