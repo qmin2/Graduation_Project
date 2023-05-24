@@ -14,15 +14,34 @@ from src_xgboost.xgboost_model import *
 import pickle
 import xgboost as xgb
 
+questions = [
+    "At a party, would you rather spend most of the time talking to a few close friends or mingle with many different people?",  # (E-I)
+    "When deciding on a restaurant for dinner with friends, do you primarily consider the quality and taste of the food (logic) or whether everyone will feel comfortable and enjoy the atmosphere (emotions)?",  # (T-F)
+    "When planning a trip, do you focus on researching specific attractions and activities, like visiting historical landmarks, or do you look for overarching themes, like exploring local art and culture?",  # (S-N)
+    "Imagine you have a week-long project due next week. Would you create a detailed plan, breaking down the tasks day by day, or prefer to go with the flow and work on it when inspiration strikes?",  # (J-P)
+    "In a cooking class, would you rather learn through hands-on demonstrations, like preparing dishes yourself, or listening to explanations of different techniques and the science behind them?",  # (S-N)
+    "During a team-building activity, such as a group puzzle-solving game, do you take charge by assigning roles and directing the group or contribute your ideas and insights in a more collaborative manner?",  # (E-I)
+    "A friend comes to you with a personal dilemma. Do you offer a solution based on logical analysis, weighing the pros and cons, or do you focus on understanding and validating their feelings and concerns?",  # (T-F)
+    "You're in a disagreement with a colleague. Do you prioritize resolving the conflict by finding a compromise, even if it means not fully expressing your point of view, or do you assert your opinion even if it risks causing tension?",  # (T-F)
+    "On a weekend getaway, would you rather follow a detailed itinerary that includes a list of attractions, restaurants, and activities, or leave your schedule open to spontaneous adventures and discoveries?",  # (J-P)
+    "In your free time, are you more drawn to learning practical skills, like woodworking or gardening, or exploring abstract concepts and ideas, like philosophy or advanced mathematics?",  # (S-N)
+]
+
 
 def main():
     input_answers = [
-        "Like brothers in blood Sisters who ride And we swore on that night We'd be friends 'til we die But the changing of winds",
-        "I will pull out the car and park again",
-        "Think of the overall flow and repeat it multiple times",
-        "And we become night time dreamers And street walkers, small talkers When we should be daydreamers \
-        And moonwalkers and dream talkers And we become night time dreamers Street walkers, small talker When \
-          we should be daydreamers And moonwalkers and dream talkers",
+        " ",
+        " ",
+        " ",
+        " ",
+        " ",
+        " ",
+        " ",
+        " ",
+        " ",
+        " ",
+        " ",
+        " ",
     ]  # will have 10 answers
 
     tokenizer = T5Tokenizer.from_pretrained("t5-base")
@@ -49,9 +68,8 @@ def main():
         )
         outputs = outputs.last_hidden_state[:, 0, :].numpy()
         features.extend(outputs)
-        # 앞에[0] 짤라야 할듯? 뒤에 1 eos 계속 따라다님
 
-    test_features = np.vstack(features)  # (10,768) features embedding 저장해두자
+    test_features = np.vstack(features)
 
     ######## prediciton ########
     # load the saved model from a file
@@ -65,6 +83,20 @@ def main():
     ns_pred = ns_model.predict(test_features)  # n=0, s=1
     tf_pred = tf_model.predict(test_features)  # t=0, f=1
     pj_pred = pj_model.predict(test_features)  # p=0, j=1
+
+    # List of classifiers
+    classifiers = [ei_model, ns_model, tf_model, pj_model]
+    classifier_names = ["E vs I", "N vs S", "T vs F", "P vs J"]
+
+    # Predict using each classifier and display confidence
+    for classifier, classifier_name in zip(classifiers, classifier_names):
+        pred_prob = classifier.predict_proba(test_features)
+        pred_label = classifier.predict(test_features)
+
+        # Display confidence for each prediction
+        for pred, prob in zip(pred_label, pred_prob):
+            confidence = prob[pred] * 100
+            print(f"{classifier_name} - Confidence: {confidence:.2f}%")
 
     pred = str(ei_pred[0]) + str(ns_pred[0]) + str(tf_pred[0]) + str(pj_pred[0])
     mbti_dict = {
