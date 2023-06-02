@@ -55,10 +55,7 @@ class Pooler(nn.Module):
 class ST5_MT5Model(MT5EncoderModel):
     def __init__(self, config: MT5Config, pooler_type='avg'):
         super(MT5EncoderModel,self).__init__(config)
-        # 이렇게하면 MT5Model의 부모클래스 MT5PreTrainedModel을 상속하는거여서
-        # 원래 MT5 init에 있던 코드를 다 복붙 하는것인듯.
-        # 그렇다면 왜 이런식으로해서 MT5PretrainedModel의 변수까지 가져오는걸까?
-        
+  
         self.shared = nn.Embedding(config.vocab_size, config.d_model)
 
         encoder_config = copy.deepcopy(config)
@@ -118,13 +115,12 @@ class ST5_MT5Model(MT5EncoderModel):
         return sentence_representation
         
 
-# dataset의 label을 결국 integer 형태로 바꿀까?? 학습속도 빨라지게하기 위해,,, 학습속도문제가아니라 그냥 바꿔야할듯
 class MBTIDataset(Dataset):
     def __init__(self, args, df, tokenizer):
         self.instances = []
         self.labels = [label for label in df['type']]
 
-        for text in df['posts']: # 필요시 수정 이것도 gpu에서 하면되지않나?
+        for text in df['posts']: 
             instance = tokenizer(text,
                                 padding='max_length',
                                 max_length=args.max_seq_len,
@@ -293,7 +289,7 @@ def main():
 
     set_seed(args.seed)
 
-    model = MT5Classifier(args).to(args.device)  # 영현이형에게 물어보기, bert 처럼 특정이름만써야됐었던 논리
+    model = MT5Classifier(args).to(args.device) 
     tokenizer = T5Tokenizer.from_pretrained('google/mt5-base') # same as MT5Tokenizer
 
     df = pd.read_csv('./mbti_data/preprocessed_mbti.csv')
