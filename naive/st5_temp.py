@@ -47,9 +47,6 @@ class Pooler(nn.Module):
 class ST5_T5Model(T5EncoderModel):
     def __init__(self, config: T5Config, pooler_type='avg'):
         super(T5EncoderModel,self).__init__(config)
-        # 이렇게하면 MT5Model의 부모클래스 MT5PreTrainedModel을 상속하는거여서
-        # 원래 MT5 init에 있던 코드를 다 복붙 하는것인듯.
-        # 그렇다면 왜 이런식으로해서 MT5PretrainedModel의 변수까지 가져오는걸까?
         
         self.shared = nn.Embedding(config.vocab_size, config.d_model)
 
